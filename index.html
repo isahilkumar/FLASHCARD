@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Flashcard App</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #6c5ce7;
+      --secondary: #a29bfe;
+      --accent: #fd79a8;
+      --light: #f8f9fa;
+      --dark: #2d3436;
+      --success: #00b894;
+      --warning: #fdcb6e;
+      --danger: #d63031;
+      --footer-bg: #495057;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      color: var(--dark);
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Animated Bubbles Background */
+    .bubbles {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+      top: 0;
+      left: 0;
+    }
+
+    .bubble {
+      position: absolute;
+      bottom: -100px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      animation: rise 15s infinite ease-in;
+    }
+
+    .bubble:nth-child(1) {
+      width: 40px;
+      height: 40px;
+      left: 10%;
+      animation-duration: 8s;
+    }
+
+    .bubble:nth-child(2) {
+      width: 20px;
+      height: 20px;
+      left: 20%;
+      animation-duration: 5s;
+      animation-delay: 1s;
+    }
+
+    .bubble:nth-child(3) {
+      width: 50px;
+      height: 50px;
+      left: 35%;
+      animation-duration: 7s;
+      animation-delay: 2s;
+    }
+
+    .bubble:nth-child(4) {
+      width: 80px;
+      height: 80px;
+      left: 50%;
+      animation-duration: 11s;
+      animation-delay: 0s;
+    }
+
+    .bubble:nth-child(5) {
+      width: 35px;
+      height: 35px;
+      left: 55%;
+      animation-duration: 6s;
+      animation-delay: 1s;
+    }
+
+    .bubble:nth-child(6) {
+      width: 45px;
+      height: 45px;
+      left: 65%;
+      animation-duration: 8s;
+      animation-delay: 3s;
+    }
+
+    .bubble:nth-child(7) {
+      width: 25px;
+      height: 25px;
+      left: 75%;
+      animation-duration: 7s;
+      animation-delay: 2s;
+    }
+
+    .bubble:nth-child(8) {
+      width: 80px;
+      height: 80px;
+      left: 80%;
+      animation-duration: 6s;
+      animation-delay: 1s;
+    }
+
+    @keyframes rise {
+      0% {
+        bottom: -100px;
+        transform: translateX(0);
+      }
+      50% {
+        transform: translateX(100px);
+      }
+      100% {
+        bottom: 1080px;
+        transform: translateX(-200px);
+      }
+    }
+
+    /* Welcome Screen */
+    .welcome-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      backdrop-filter: blur(5px);
+    }
+
+    .welcome-card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      max-width: 800px;
+      overflow: hidden;
+    }
+
+    .welcome-header {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .welcome-body {
+      padding: 2rem;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .feature-icon {
+      font-size: 1.5rem;
+      color: var(--primary);
+      margin-right: 1rem;
+      width: 40px;
+      height: 40px;
+      background: rgba(108, 92, 231, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Login Screen */
+    .login-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9998;
+      backdrop-filter: blur(5px);
+    }
+
+    .login-card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      max-width: 500px;
+      overflow: hidden;
+    }
+
+    .login-header {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    /* Main App Styling */
+    .app-container {
+      background-color: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      margin: 2rem auto;
+      overflow: hidden;
+    }
+
+    .app-header {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .app-header h1 {
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      font-size: 1.8rem;
+    }
+
+    .nav-container {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 1rem;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .role-selector .btn {
+      margin: 0.5rem;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .nav-tabs {
+      border-bottom: none;
+      justify-content: center;
+      margin: 1rem 0;
+    }
+
+    .nav-tabs .nav-link {
+      border: none;
+      color: var(--dark);
+      font-weight: 500;
+      padding: 0.75rem 1.5rem;
+      margin: 0 0.5rem;
+      border-radius: 50px;
+      transition: all 0.3s;
+    }
+
+    .nav-tabs .nav-link.active {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white;
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .tab-content {
+      padding: 2rem;
+    }
+
+    /* Flashcard Styling */
+    .flashcard {
+      border: none;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+
+    .flashcard:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .flashcard .card-body {
+      position: relative;
+    }
+
+    .flashcard .topic-badge {
+      background: linear-gradient(135deg, var(--secondary), var(--primary));
+      color: white;
+      font-weight: 500;
+      padding: 0.25rem 1rem;
+      border-radius: 50px;
+      font-size: 0.8rem;
+    }
+
+    .delete-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: linear-gradient(135deg, var(--danger), #ff7675);
+      color: white;
+      border: none;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+    }
+
+    /* Study Mode */
+    .study-card {
+      border: none;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      min-height: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.5s;
+      perspective: 1000px;
+      position: relative;
+      background: white;
+    }
+
+    .study-card.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .study-card .card-front,
+    .study-card .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .study-card .card-back {
+      transform: rotateY(180deg);
+      border-top: 2px dashed rgba(108, 92, 231, 0.3);
+    }
+
+    .card-counter {
+      background: rgba(0, 0, 0, 0.1);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 50px;
+      display: inline-block;
+      margin-bottom: 1rem;
+    }
+
+    /* Chatbot Page */
+    .chatbot-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .chatbot-card {
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .chatbot-header {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .chatbot-body {
+      padding: 1.5rem;
+      background: white;
+    }
+
+    .chat-messages {
+      height: 400px;
+      overflow-y: auto;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+    }
+
+    .message {
+      margin-bottom: 1rem;
+      padding: 0.75rem 1rem;
+      border-radius: 15px;
+      max-width: 80%;
+    }
+
+    .user-message {
+      background: var(--primary);
+      color: white;
+      margin-left: auto;
+      border-bottom-right-radius: 5px;
+    }
+
+    .bot-message {
+      background: #e9ecef;
+      margin-right: auto;
+      border-bottom-left-radius: 5px;
+    }
+
+    .message-time {
+      font-size: 0.7rem;
+      opacity: 0.7;
+      margin-top: 0.3rem;
+    }
+
+    .chat-input-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .api-key-input {
+      margin-bottom: 1rem;
+    }
+
+    /* Search & Resources Page */
+    .resources-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .resource-card {
+      border: none;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .resource-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .resource-card .card-body {
+      flex-grow: 1;
+    }
+
+    .resource-card .card-footer {
+      background: transparent;
+      border-top: none;
+    }
+
+    .resource-icon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+
+    /* Footer */
+    .app-footer {
+      background: var(--footer-bg);
+      color: white;
+      padding: 2rem 0;
+      margin-top: 3rem;
+    }
+
+    .footer-section h5 {
+      position: relative;
+      padding-bottom: 0.5rem;
+      margin-bottom: 1.5rem;
+      color: white;
+    }
+
+    .footer-section h5::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 50px;
+      height: 2px;
+      background: var(--accent);
+    }
+
+    .footer-links a {
+      color: #dee2e6;
+      text-decoration: none;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .footer-links a:hover {
+      color: var(--accent);
+      transform: translateX(5px);
+    }
+
+    .footer-links i {
+      margin-right: 0.5rem;
+      color: var(--accent);
+    }
+
+    .social-links a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      color: white;
+      margin-right: 0.5rem;
+      transition: all 0.3s;
+    }
+
+    .social-links a:hover {
+      background: var(--accent);
+      transform: translateY(-3px);
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-fade {
+      animation: fadeIn 0.5s ease;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+      .app-header h1 {
+        font-size: 1.5rem;
+      }
+      
+      .nav-tabs .nav-link {
+        padding: 0.5rem 1rem;
+        margin: 0.25rem;
+        font-size: 0.9rem;
+      }
+      
+      .tab-content {
+        padding: 1rem;
+      }
+      
+      .welcome-card, .login-card {
+        margin: 1rem;
+      }
+
+      .chat-messages {
+        height: 300px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Animated Bubbles Background -->
+  <div class="bubbles">
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+  </div>
+
+  <div id="root"></div>
+
+  <!-- Bootstrap JS Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- React and Babel -->
+  <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    const FlashcardApp = () => {
+      // App state
+      const [currentPage, setCurrentPage] = useState('welcome');
+      const [role, setRole] = useState('teacher');
+      const [activeTab, setActiveTab] = useState('create');
+      const [flashcards, setFlashcards] = useState([]);
+      const [studyCards, setStudyCards] = useState([]);
+      const [currentCardIndex, setCurrentCardIndex] = useState(0);
+      const [isFlipped, setIsFlipped] = useState(false);
+      const [selectedTopic, setSelectedTopic] = useState('all');
+      const [topics, setTopics] = useState(['all']);
+      const [isLoggedIn, setIsLoggedIn] = useState(false);
+      const [loginData, setLoginData] = useState({
+        email: '',
+        password: ''
+      });
+      const [chatMessages, setChatMessages] = useState([]);
+      const [userMessage, setUserMessage] = useState('');
+      const [apiKey, setApiKey] = useState('');
+
+      // Form state
+      const [formData, setFormData] = useState({
+        question: '',
+        answer: '',
+        topic: ''
+      });
+
+      // Resources data
+      const resources = [
+        {
+          title: "Google Search",
+          description: "Search the web for information, images, videos and more",
+          icon: "fab fa-google",
+          link: "https://www.google.com",
+          color: "bg-danger"
+        },
+        {
+          title: "Download Chrome",
+          description: "Get the fast, free and secure web browser",
+          icon: "fab fa-chrome",
+          link: "https://www.google.com/chrome/",
+          color: "bg-success"
+        },
+        {
+          title: "Flashcard Learning Tips",
+          description: "Learn how to study more effectively with flashcards",
+          icon: "fas fa-lightbulb",
+          link: "https://www.google.com/search?q=flashcard+learning+tips",
+          color: "bg-warning"
+        },
+        {
+          title: "Study Techniques",
+          description: "Discover proven methods to improve your learning",
+          icon: "fas fa-graduation-cap",
+          link: "https://www.google.com/search?q=study+techniques",
+          color: "bg-info"
+        },
+        {
+          title: "Educational Videos",
+          description: "Find helpful tutorials and educational content",
+          icon: "fab fa-youtube",
+          link: "https://www.youtube.com/",
+          color: "bg-danger"
+        },
+        {
+          title: "Online Courses",
+          description: "Explore free and paid courses on various subjects",
+          icon: "fas fa-laptop-code",
+          link: "https://www.coursera.org/",
+          color: "bg-primary"
+        }
+      ];
+
+      // Load flashcards from localStorage
+      useEffect(() => {
+        const savedFlashcards = JSON.parse(localStorage.getItem('flashcards')) || [];
+        setFlashcards(savedFlashcards);
+        
+        // Extract unique topics
+        const uniqueTopics = ['all', ...new Set(savedFlashcards.map(card => card.topic).filter(t => t))];
+        setTopics(uniqueTopics);
+      }, []);
+
+      // Save flashcards to localStorage when they change
+      useEffect(() => {
+        localStorage.setItem('flashcards', JSON.stringify(flashcards));
+      }, [flashcards]);
+
+      // Handle form input changes
+      const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({
+          ...formData,
+          [name]: value
+        });
+      };
+
+      // Handle login input changes
+      const handleLoginChange = (e) => {
+        const { name, value } = e.target;
+        setLoginData({
+          ...loginData,
+          [name]: value
+        });
+      };
+
+      // Handle form submission
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        if (!formData.question || !formData.answer) return;
+
+        const newFlashcard = {
+          id: Date.now(),
+          question: formData.question,
+          answer: formData.answer,
+          topic: formData.topic || 'General'
+        };
+
+        setFlashcards([...flashcards, newFlashcard]);
+        
+        // Update topics if new
+        if (formData.topic && !topics.includes(formData.topic)) {
+          setTopics([...topics, formData.topic]);
+        }
+
+        // Reset form
+        setFormData({
+          question: '',
+          answer: '',
+          topic: ''
+        });
+      };
+
+      // Handle login submission
+      const handleLoginSubmit = (e) => {
+        e.preventDefault();
+        // Simple validation - in a real app, you'd verify against a server
+        if (loginData.email && loginData.password) {
+          setIsLoggedIn(true);
+          setCurrentPage('main');
+        }
+      };
+
+      // Delete a flashcard
+      const deleteFlashcard = (id) => {
+        setFlashcards(flashcards.filter(card => card.id !== id));
+      };
+
+      // Start studying with filtered cards
+      const startStudying = () => {
+        const filteredCards = selectedTopic === 'all' 
+          ? [...flashcards] 
+          : flashcards.filter(card => card.topic === selectedTopic);
+        
+        if (filteredCards.length === 0) {
+          alert('No flashcards available for this topic.');
+          return;
+        }
+        
+        setStudyCards(filteredCards);
+        setCurrentCardIndex(0);
+        setIsFlipped(false);
+        setActiveTab('study');
+      };
+
+      // Navigate study cards
+      const nextCard = () => {
+        setIsFlipped(false);
+        setCurrentCardIndex((prevIndex) => 
+          prevIndex === studyCards.length - 1 ? 0 : prevIndex + 1
+        );
+      };
+
+      const prevCard = () => {
+        setIsFlipped(false);
+        setCurrentCardIndex((prevIndex) => 
+          prevIndex === 0 ? studyCards.length - 1 : prevIndex - 1
+        );
+      };
+
+      // Toggle card flip
+      const toggleFlip = () => {
+        setIsFlipped(!isFlipped);
+      };
+
+      // Close welcome screen
+      const closeWelcome = () => {
+        setCurrentPage('login');
+      };
+
+      // Handle chat message submission
+      const handleChatSubmit = (e) => {
+        e.preventDefault();
+        if (!userMessage.trim() || !apiKey.trim()) return;
+
+        const newUserMessage = {
+          id: Date.now(),
+          text: userMessage,
+          sender: 'user',
+          time: new Date().toLocaleTimeString()
+        };
+
+        setChatMessages([...chatMessages, newUserMessage]);
+        setUserMessage('');
+
+        // Simulate bot response (in a real app, you'd call an API)
+        setTimeout(() => {
+          const botResponse = {
+            id: Date.now() + 1,
+            text: `I received your message: "${userMessage}". This is a simulated response. In a real app, this would call an API with your key: ${apiKey.substring(0, 5)}...`,
+            sender: 'bot',
+            time: new Date().toLocaleTimeString()
+          };
+          setChatMessages(prev => [...prev, botResponse]);
+        }, 1000);
+      };
+
+      // Render welcome screen
+      const renderWelcomeScreen = () => (
+        <div className="welcome-screen animate-fade">
+          <div className="welcome-card animate-fade">
+            <div className="welcome-header">
+              <h2><i className="fas fa-lightbulb me-2"></i> Welcome to Flashcard App!</h2>
+              <p className="mb-0">Enhance your learning experience with interactive flashcards</p>
+            </div>
+            <div className="welcome-body">
+              <div className="mb-4">
+                <div className="feature-item">
+                  <div className="feature-icon">
+                    <i className="fas fa-plus"></i>
+                  </div>
+                  <div>
+                    <h5 className="mb-1">Create Flashcards</h5>
+                    <p className="mb-0 text-muted">Easily create custom flashcards with questions and answers</p>
+                  </div>
+                </div>
+                <div className="feature-item">
+                  <div className="feature-icon">
+                    <i className="fas fa-tags"></i>
+                  </div>
+                  <div>
+                    <h5 className="mb-1">Organize by Topics</h5>
+                    <p className="mb-0 text-muted">Categorize your flashcards for better study sessions</p>
+                  </div>
+                </div>
+                <div className="feature-item">
+                  <div className="feature-icon">
+                    <i className="fas fa-book-open"></i>
+                  </div>
+                  <div>
+                    <h5 className="mb-1">Interactive Study</h5>
+                    <p className="mb-0 text-muted">Flip cards to test your knowledge and track progress</p>
+                  </div>
+                </div>
+              </div>
+              <button 
+                className="btn btn-primary btn-lg w-100 py-3"
+                onClick={closeWelcome}
+              >
+                Get Started <i className="fas fa-arrow-right ms-2"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+
+      // Render login screen
+      const renderLoginScreen = () => (
+        <div className="login-screen animate-fade">
+          <div className="login-card animate-fade">
+            <div className="login-header">
+              <h2><i className="fas fa-sign-in-alt me-2"></i> Login</h2>
+              <p className="mb-0">Please login to access the Flashcard App</p>
+            </div>
+            <div className="p-4">
+              <form onSubmit={handleLoginSubmit}>
+                <div className="mb-3">
+                  <label htmlFor="email" className="form-label">Email:</label>
+                  <input
+                    type="email"
+                    className="form-control"
+                    id="email"
+                    name="email"
+                    value={loginData.email}
+                    onChange={handleLoginChange}
+                    required
+                    placeholder="Enter your email"
+                  />
+                </div>
+                <div className="mb-4">
+                  <label htmlFor="password" className="form-label">Password:</label>
+                  <input
+                    type="password"
+                    className="form-control"
+                    id="password"
+                    name="password"
+                    value={loginData.password}
+                    onChange={handleLoginChange}
+                    required
+                    placeholder="Enter your password"
+                  />
+                </div>
+                <button type="submit" className="btn btn-primary w-100 py-3">
+                  Login <i className="fas fa-sign-in-alt ms-2"></i>
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      );
+
+      // Render main app
+      const renderMainApp = () => (
+        <div className="container py-4">
+          <div className="app-container animate-fade">
+            <div className="app-header">
+              <h1>Interactive Flashcard App</h1>
+              <p className="mb-0">
+                {role === 'teacher' ? 'Create and manage beautiful flashcards' : 'Engage in immersive learning'}
+              </p>
+            </div>
+
+            <div className="nav-container">
+              <div className="d-flex justify-content-between align-items-center">
+                <div className="role-selector">
+                  <button 
+                    className={`btn ${role === 'teacher' ? 'btn-primary' : 'btn-outline-primary'}`}
+                    onClick={() => setRole('teacher')}
+                  >
+                    <i className="fas fa-chalkboard-teacher me-2"></i> Teacher
+                  </button>
+                  <button 
+                    className={`btn ${role === 'student' ? 'btn-primary' : 'btn-outline-primary'}`}
+                    onClick={() => setRole('student')}
+                  >
+                    <i className="fas fa-user-graduate me-2"></i> Student
+                  </button>
+                </div>
+                <div>
+                  <button 
+                    className="btn btn-success me-2"
+                    onClick={() => setCurrentPage('chatbot')}
+                  >
+                    <i className="fas fa-robot me-2"></i> Chatbot
+                  </button>
+                  <button 
+                    className="btn btn-info"
+                    onClick={() => setCurrentPage('resources')}
+                  >
+                    <i className="fas fa-search me-2"></i> Resources
+                  </button>
+                </div>
+              </div>
+
+              <ul className="nav nav-tabs">
+                {role === 'teacher' && (
+                  <li className="nav-item">
+                    <button 
+                      className={`nav-link ${activeTab === 'create' ? 'active' : ''}`}
+                      onClick={() => setActiveTab('create')}
+                    >
+                      <i className="fas fa-plus-circle me-2"></i> Create
+                    </button>
+                  </li>
+                )}
+                <li className="nav-item">
+                  <button 
+                    className={`nav-link ${activeTab === 'browse' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('browse')}
+                  >
+                    <i className="fas fa-search me-2"></i> Browse
+                  </button>
+                </li>
+                <li className="nav-item">
+                  <button 
+                    className={`nav-link ${activeTab === 'study' ? 'active' : ''}`}
+                    onClick={() => {
+                      if (studyCards.length === 0) startStudying();
+                      else setActiveTab('study');
+                    }}
+                  >
+                    <i className="fas fa-book-open me-2"></i> Study
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            {/* Create Flashcards Tab */}
+            {role === 'teacher' && (
+              <div className={`tab-content ${activeTab === 'create' ? 'active' : ''}`}>
+                <div className="card border-0 shadow-sm">
+                  <div className="card-body">
+                    <h2 className="mb-4">Create New Flashcard</h2>
+                    <form onSubmit={handleSubmit}>
+                      <div className="mb-3">
+                        <label htmlFor="question" className="form-label">Question:</label>
+                        <textarea
+                          className="form-control"
+                          id="question"
+                          name="question"
+                          value={formData.question}
+                          onChange={handleInputChange}
+                          required
+                          rows="3"
+                          placeholder="Enter your question here..."
+                        />
+                      </div>
+                      <div className="mb-3">
+                        <label htmlFor="answer" className="form-label">Answer:</label>
+                        <textarea
+                          className="form-control"
+                          id="answer"
+                          name="answer"
+                          value={formData.answer}
+                          onChange={handleInputChange}
+                          required
+                          rows="3"
+                          placeholder="Enter the answer here..."
+                        />
+                      </div>
+                      <div className="mb-4">
+                        <label htmlFor="topic" className="form-label">Topic (optional):</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          id="topic"
+                          name="topic"
+                          value={formData.topic}
+                          onChange={handleInputChange}
+                          placeholder="e.g. Math, History, Science"
+                        />
+                      </div>
+                      <button type="submit" className="btn btn-primary w-100 py-3">
+                        <i className="fas fa-save me-2"></i> Create Flashcard
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Browse Flashcards Tab */}
+            <div className={`tab-content ${activeTab === 'browse' ? 'active' : ''}`}>
+              <div className="mb-4">
+                <h2 className="mb-4">Browse Flashcards</h2>
+                
+                <div className="d-flex flex-wrap justify-content-center mb-4">
+                  {topics.map(topic => (
+                    <button
+                      key={topic}
+                      className={`btn btn-sm m-1 ${selectedTopic === topic ? 'btn-primary' : 'btn-outline-primary'}`}
+                      onClick={() => setSelectedTopic(topic)}
+                    >
+                      {topic}
+                    </button>
+                  ))}
+                </div>
+
+                <button 
+                  onClick={startStudying} 
+                  className="btn btn-success mb-4"
+                >
+                  <i className="fas fa-play me-2"></i> Study Selected Topic
+                </button>
+
+                <div className="row">
+                  {flashcards
+                    .filter(card => selectedTopic === 'all' || card.topic === selectedTopic)
+                    .map(card => (
+                      <div key={card.id} className="col-md-6 col-lg-4">
+                        <div className="flashcard card h-100">
+                          <div className="card-body">
+                            {role === 'teacher' && (
+                              <button 
+                                className="delete-btn"
+                                onClick={() => deleteFlashcard(card.id)}
+                                title="Delete this flashcard"
+                              >
+                                <i className="fas fa-trash"></i>
+                              </button>
+                            )}
+                            <h3 className="card-title">{card.question}</h3>
+                            <p className="card-text"><strong>Answer:</strong> {card.answer}</p>
+                            {card.topic && (
+                              <span className="topic-badge">
+                                <i className="fas fa-tag me-1"></i> {card.topic}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+
+                {flashcards.filter(card => selectedTopic === 'all' || card.topic === selectedTopic).length === 0 && (
+                  <div className="alert alert-info text-center">
+                    No flashcards found for this topic.
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Study Mode Tab */}
+            <div className={`tab-content ${activeTab === 'study' ? 'active' : ''}`}>
+              <div className="text-center">
+                <div className="card-counter mb-3">
+                  <i className="fas fa-layer-group me-2"></i>
+                  Card {currentCardIndex + 1} of {studyCards.length} | 
+                  <i className="fas fa-tag ms-2 me-1"></i> {studyCards[currentCardIndex]?.topic || 'General'}
+                </div>
+
+                {studyCards.length > 0 ? (
+                  <div 
+                    className={`study-card mb-4 ${isFlipped ? 'flipped' : ''}`} 
+                    onClick={toggleFlip}
+                  >
+                    <div className="card-front">
+                      <h2 className="display-5">{studyCards[currentCardIndex].question}</h2>
+                      <p className="text-muted mt-3">Click to reveal answer</p>
+                    </div>
+                    <div className="card-back">
+                      <h3 className="text-primary mb-4">Answer:</h3>
+                      <p className="lead">{studyCards[currentCardIndex].answer}</p>
+                      <p className="text-muted mt-3">Click to see question</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="alert alert-warning">
+                    No flashcards available to study. Select a topic and click "Study Selected Topic".
+                  </div>
+                )}
+
+                <div className="d-flex justify-content-center">
+                  <button onClick={prevCard} className="btn btn-outline-primary me-3">
+                    <i className="fas fa-arrow-left me-2"></i> Previous
+                  </button>
+                  <button onClick={nextCard} className="btn btn-outline-primary">
+                    Next <i className="fas fa-arrow-right ms-2"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <footer className="app-footer animate-fade">
+            <div className="container">
+              <div className="row">
+                <div className="col-md-4 mb-4">
+                  <div className="footer-section">
+                    <h5>About Flashcard App</h5>
+                    <p>An interactive learning tool designed to help teachers create engaging flashcards and students to study effectively.</p>
+                    <div className="social-links mt-3">
+                      <a href="#"><i className="fab fa-facebook-f"></i></a>
+                      <a href="#"><i className="fab fa-twitter"></i></a>
+                      <a href="#"><i className="fab fa-instagram"></i></a>
+                      <a href="#"><i className="fab fa-linkedin-in"></i></a>
+                    </div>
+                  </div>
+                </div>
+                <div className="col-md-4 mb-4">
+                  <div className="footer-section">
+                    <h5>Quick Links</h5>
+                    <ul className="list-unstyled footer-links">
+                      <li><a href="#" onClick={() => setCurrentPage('main')}><i className="fas fa-chevron-right me-2"></i> Home</a></li>
+                      <li><a href="#" onClick={() => setCurrentPage('resources')}><i className="fas fa-chevron-right me-2"></i> Resources</a></li>
+                      <li><a href="#" onClick={() => setCurrentPage('chatbot')}><i className="fas fa-chevron-right me-2"></i> Chatbot</a></li>
+                      <li><a href="#"><i className="fas fa-chevron-right me-2"></i> How It Works</a></li>
+                      <li><a href="#"><i className="fas fa-chevron-right me-2"></i> Contact Us</a></li>
+                    </ul>
+                  </div>
+                </div>
+                <div className="col-md-4 mb-4">
+                  <div className="footer-section">
+                    <h5>Contact Info</h5>
+                    <ul className="list-unstyled contact-info">
+                      <li className="mb-2">
+                        <i className="fas fa-map-marker-alt me-2"></i>
+                        <span>123 Learning Street, Education City</span>
+                      </li>
+                      <li className="mb-2">
+                        <i className="fas fa-phone me-2"></i>
+                        <span>+1 (555) 123-4567</span>
+                      </li>
+                      <li className="mb-2">
+                        <i className="fas fa-envelope me-2"></i>
+                        <span>info@flashcardapp.com</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div className="text-center pt-3 mt-3 border-top border-secondary">
+                <p className="mb-0">
+                  &copy; {new Date().getFullYear()} Flashcard App. All rights reserved.
+                </p>
+              </div>
+            </div>
+          </footer>
+        </div>
+      );
+
+      // Render chatbot page
+      const renderChatbotPage = () => (
+        <div className="container py-4">
+          <div className="app-container animate-fade">
+            <div className="app-header">
+              <h1>Flashcard App Chatbot</h1>
+              <p className="mb-0">Get AI-powered assistance with your flashcards</p>
+            </div>
+
+            <div className="p-4">
+              <button 
+                className="btn btn-outline-primary mb-4"
+                onClick={() => setCurrentPage('main')}
+              >
+                <i className="fas fa-arrow-left me-2"></i> Back to Flashcards
+              </button>
+
+              <div className="chatbot-card">
+                <div className="chatbot-header">
+                  <h3 className="mb-0"><i className="fas fa-robot me-2"></i> Study Assistant</h3>
+                </div>
+                <div className="chatbot-body">
+                  <div className="api-key-input">
+                    <label htmlFor="api-key" className="form-label">Enter your API Key:</label>
+                    <input
+                      type="password"
+                      className="form-control"
+                      id="api-key"
+                      value={apiKey}
+                      onChange={(e) => setApiKey(e.target.value)}
+                      placeholder="sk-...your-api-key..."
+                    />
+                    <small className="text-muted">Note: This is a demo. In a real app, this would connect to an AI service.</small>
+                  </div>
+
+                  <div className="chat-messages">
+                    {chatMessages.length === 0 ? (
+                      <div className="text-center text-muted py-4">
+                        <i className="fas fa-comments fa-3x mb-3"></i>
+                        <p>Start a conversation with the Study Assistant</p>
+                      </div>
+                    ) : (
+                      chatMessages.map(msg => (
+                        <div key={msg.id} className={`message ${msg.sender === 'user' ? 'user-message' : 'bot-message'}`}>
+                          <div>{msg.text}</div>
+                          <div className="message-time">
+                            {msg.sender === 'user' ? 'You' : 'Assistant'} • {msg.time}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  <form onSubmit={handleChatSubmit}>
+                    <div className="chat-input-group">
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={userMessage}
+                        onChange={(e) => setUserMessage(e.target.value)}
+                        placeholder="Type your message..."
+                      />
+                      <button type="submit" className="btn btn-primary">
+                        <i className="fas fa-paper-plane"></i>
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+
+      // Render resources page
+      const renderResourcesPage = () => (
+        <div className="container py-4">
+          <div className="app-container animate-fade">
+            <div className="app-header">
+              <h1>Search & Resources</h1>
+              <p className="mb-0">Helpful tools and resources for your learning journey</p>
+            </div>
+
+            <div className="p-4">
+              <button 
+                className="btn btn-outline-primary mb-4"
+                onClick={() => setCurrentPage('main')}
+              >
+                <i className="fas fa-arrow-left me-2"></i> Back to Flashcards
+              </button>
+
+              <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                {resources.map((resource, index) => (
+                  <div className="col" key={index}>
+                    <div className="resource-card card h-100">
+                      <div className="card-body text-center">
+                        <div className={`resource-icon rounded-circle ${resource.color} text-white p-3 mb-3 mx-auto`}>
+                          <i className={`${resource.icon} fa-lg`}></i>
+                        </div>
+                        <h3 className="card-title">{resource.title}</h3>
+                        <p className="card-text">{resource.description}</p>
+                      </div>
+                      <div className="card-footer text-center border-0 bg-transparent">
+                        <a 
+                          href={resource.link} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="btn btn-primary"
+                        >
+                          Visit Resource <i className="fas fa-external-link-alt ms-2"></i>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+
+      // Main render function
+      return (
+        <>
+          {currentPage === 'welcome' && renderWelcomeScreen()}
+          {currentPage === 'login' && !isLoggedIn && renderLoginScreen()}
+          {currentPage === 'main' && isLoggedIn && renderMainApp()}
+          {currentPage === 'chatbot' && isLoggedIn && renderChatbotPage()}
+          {currentPage === 'resources' && isLoggedIn && renderResourcesPage()}
+        </>
+      );
+    };
+
+    ReactDOM.render(<FlashcardApp />, document.getElementById('root'));
+  </script>
+</body>
+</html>
